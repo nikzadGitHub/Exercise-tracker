@@ -13,7 +13,8 @@ var bodyParser = require("body-parser");
 const Schema = mongoose.Schema;
 
 const userSchema = Schema({
-  name: String,
+  _id: { type: Schema.Types.ObjectId},
+  username: String,
   exercises: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }]
 });
 
