@@ -15,7 +15,7 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   _id: Schema.Types.ObjectId,
   username: String,
-  reviews: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }],
+  log: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }],
 });
 
 const exerciseSchema = new Schema({
@@ -90,9 +90,16 @@ app.post('/api/users/:_id/exercises', function(req, res) {
           if (user) {
               // The below two lines will add the newly saved review's 
               // ObjectID to the the User's reviews array field
-              user.reviews.push(exerciseRecord);
+              user.log.push(exerciseRecord);
               user.save();
-              res.json({ message: 'Exercise = created!' });
+              UserModel.findOne({ _id: req.params._id })
+              .populate('log')
+              .then((result) => {
+                res.json(result);
+              })
+              .catch((error) => {
+                res.status(500).json({ error });
+              });
           }
       });
     })
@@ -106,7 +113,7 @@ app.get('/api/users/:_id/logs', function(req, res) {
   console.log('your input ', req.params._id);
 
   UserModel.findOne({ _id: req.params._id })
-  .populate('reviews')
+  .populate('log')
   .then((result) => {
     res.json(result);
   })
