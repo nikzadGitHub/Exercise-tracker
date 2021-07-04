@@ -68,7 +68,6 @@ app.post('/api/users/:_id/exercises', function(req, res) {
 
   console.log('provided data: ', req.param(':_id', null));
 
-  let user_id = req.param(':_id', null);
   let description = req.param('description', null);
   let duration = req.param('duration', null);
   let date = req.param('date', null);
@@ -78,38 +77,35 @@ app.post('/api/users/:_id/exercises', function(req, res) {
     date = new Date();
   }
 
-  console.log('given user user_id', user_id);
-  console.log('given user description', description);
-  console.log('given user duration', duration);
-  console.log('given user date', date);
-
-  
-
   // Store user in mongo db.
-  var exerciseRecord = new Exercise({
-    fk_user: user_id,
+  var exerciseRecord = new ExerciseModel({
     description: description,
     duration: duration,
     date: date,
   });
 
-  exerciseRecord.save(function(err) {
-    if (err) return console.error(err);
-    // The returned response will be an object with username and _id properties.
-    
-    exerciseRecord.populate('fk_user', function(err) {
-      if (err) return console.error(err);
-      res.json(exerciseRecord);
+  exerciseRecord.save()
+    .then((result) => {
+      UserModel.findOne({ _id: req.params._id }, (err, user) => {
+          if (user) {
+              // The below two lines will add the newly saved review's 
+              // ObjectID to the the User's reviews array field
+              user.reviews.push(exerciseRecord);
+              user.save();
+              res.json({ message: 'Exercise = created!' });
+          }
+      });
+    })
+    .catch((error) => {
+      res.status(500).json({ error });
     });
-  });
-  
 });
 
 app.get('/api/users/:_id/logs', function(req, res) {
 
   console.log('your input ', req.params._id);
 
-  User.findOne({ _id: req.params._id })
+  UserModel.findOne({ _id: req.params._id })
   .populate('reviews')
   .then((result) => {
     res.json(result);
