@@ -74,7 +74,7 @@ app.post('/api/users/:_id/exercises', function(req, res) {
   let date = req.param('date', null);
 
   if (date.length < 5) {
-    console.log("date is empty")
+    console.log("date is empty ")
     date = new Date();
   }
 
