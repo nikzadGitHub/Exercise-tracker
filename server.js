@@ -84,6 +84,8 @@ app.post('/api/users/:_id/exercises', function(req, res) {
     date: date,
   });
 
+  console.log('save version ', exerciseRecord);
+
   exerciseRecord.save()
     .then((result) => {
       UserModel.findOne({ _id: req.params._id }, (err, user) => {
@@ -92,16 +94,17 @@ app.post('/api/users/:_id/exercises', function(req, res) {
               // ObjectID to the the User's reviews array field
               user.log.push(exerciseRecord);
               user.save();
-              UserModel.findOne({ _id: req.params._id })
-              .populate('log')
-              .then((result) => {
-                res.json(result);
-              })
-              .catch((error) => {
-                res.status(500).json({ error });
-              });
           }
       });
+    })
+    .catch((error) => {
+      res.status(500).json({ error });
+    });
+
+    UserModel.findOne({ _id: req.params._id })
+    .populate('log')
+    .then((result) => {
+      res.json(result);
     })
     .catch((error) => {
       res.status(500).json({ error });
