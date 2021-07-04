@@ -118,6 +118,10 @@ app.get('/api/users/:_id/logs', function(req, res) {
   UserModel.findOne({ _id: req.params._id })
   .populate('log')
   .then((result) => {
+    console.log('restult: ', result)
+    console.log('result.log: ', result.log)
+    console.log('result.log.length: ', result.log.length)
+
     res.json(result);
   })
   .catch((error) => {
