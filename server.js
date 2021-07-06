@@ -103,9 +103,24 @@ app.post('/api/users/:_id/exercises', function(req, res) {
                 // The returned response will be an object with username and _id properties.
 
                 UserModel.findOne({ _id: req.params._id })
-                .populate('log')
+                .populate({
+                  path: 'log',
+                  select: 'description duration date',
+               })
                 .then((result) => {
-                  res.json(result);
+
+                  console.log('result ', result);
+
+                  result = result.toObject();
+                  let newObj = {
+                    _id: result._id,
+                    username:  result.username,
+                    description: result.log[0].description,
+                    duration: result.log[0].duration,
+                    date: result.log[0].date,
+                  }
+                  console.log('newObj ', newObj);
+                  res.json(newObj);
                 })
                 .catch((error) => {
                   res.status(500).json({ error });
