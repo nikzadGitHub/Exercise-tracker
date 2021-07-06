@@ -79,7 +79,7 @@ app.post('/api/users/:_id/exercises', function(req, res) {
 
   if (date == null) {
     console.log("date is empty ")
-    date = new Date();
+    date = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
   }
 
   // Store user in mongo db.
