@@ -88,7 +88,7 @@ app.post('/api/users/:_id/exercises', function(req, res) {
     duration: duration,
     date: date,
   });
-  
+
   exerciseRecord.save()
     .then((result) => {
       UserModel.findOne({ _id: req.params._id }, (err, user) => {
@@ -113,7 +113,6 @@ app.post('/api/users/:_id/exercises', function(req, res) {
                     username:  result.username,
                     _id: result._id,
                   }
-                  s
                   res.json(newObj);
                 })
                 .catch((error) => {
