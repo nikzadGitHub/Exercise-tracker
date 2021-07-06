@@ -93,22 +93,15 @@ app.post('/api/users/:_id/exercises', function(req, res) {
               // The below two lines will add the newly saved review's 
               // ObjectID to the the User's reviews array field
               user.log.push(exerciseRecord);
-              user.save();
+              user.save(function(err, data) {
+                if (err) return console.error(err);
+                // The returned response will be an object with username and _id properties.
+                res.json(data);
+              });
           }
       });
-    })
-    .catch((error) => {
-      res.status(500).json({ error });
     });
 
-    UserModel.findOne({ _id: req.params._id })
-    .populate('log')
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((error) => {
-      res.status(500).json({ error });
-    });
 });
 
 app.get('/api/users/:_id/logs', function(req, res) {
