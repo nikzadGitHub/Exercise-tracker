@@ -114,32 +114,27 @@ app.post('/api/users/:_id/exercises', function(req, res) {
 app.get('/api/users/:_id/logs', function(req, res) {
 
   console.log('your input ', req.query);
-  let lim = 0;
   let dateFilter = {};
+  let options = {};
 
-  console.log('limit value ', req.query.limit);
-
-  if (req.query.limit != 'undefined') {
-    
-    lim = req.query.limit;
+  if (typeof  req.query.limit != 'undefined') {
+    options = { limit: req.query.limit  }
   }
 
-  console.log('limit is now ', lim);
-  if (req.query.from != 'undefined') {
+  if ( typeof req.query.from != 'undefined' ) {
     // console.log('date is not null');
     dateFilter = {'date': { $gt: req.query.from, $lt: req.query.to}};
   }
 
-  // console.log('limit', lim);
-  // console.log('dateFilter', dateFilter);
+  console.log('dateFilter', dateFilter);
+
+  console.log('options is now ', options);
 
   UserModel.findOne({ _id: req.params._id })
   .populate({
     path: 'log',
     match: dateFilter,
-    options: {
-      limit: lim,
-    }
+    options: options,
   })
   .then((result) => {
 
