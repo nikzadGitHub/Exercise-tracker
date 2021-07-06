@@ -12,21 +12,25 @@ var bodyParser = require("body-parser");
 
 const Schema = mongoose.Schema;
 
+// User Schema
 const userSchema = new Schema({
   _id: Schema.Types.ObjectId,
   username: String,
   log: [{ type: Schema.Types.ObjectId, ref: 'Exercise' }],
 });
 
+// Exercise Schema
 const exerciseSchema = new Schema({
   description: String,
   duration: Number,
   date: Date,
 });
 
+// Creating Both Models.
 const ExerciseModel = mongoose.model('Exercise', exerciseSchema);
 const UserModel  = mongoose.model('User', userSchema);
 
+// Cors configurations.
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('public'))
@@ -34,10 +38,10 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
+// This route to to create new users.
 app.post('/api/users', function(req, res) {
 
   let username = req.body.username;
-  // console.log('given user name', username);
 
   // Store user in mongo db.
   var userRecord = new UserModel({
@@ -64,6 +68,7 @@ app.get('/api/users', function(req, res) {
   
 });
 
+// This route to to create new exercise for the user.
 app.post('/api/users/:_id/exercises', function(req, res) {
 
   console.log('provided data: ', req.param(':_id', null));
@@ -96,7 +101,16 @@ app.post('/api/users/:_id/exercises', function(req, res) {
               user.save(function(err, data) {
                 if (err) return console.error(err);
                 // The returned response will be an object with username and _id properties.
-                res.json(data);
+
+                UserModel.findOne({ _id: req.params._id })
+                .populate('log')
+                .then((result) => {
+                  res.json(result);
+                })
+                .catch((error) => {
+                  res.status(500).json({ error });
+                });
+                // res.json(data);
               });
           }
       });
@@ -104,6 +118,7 @@ app.post('/api/users/:_id/exercises', function(req, res) {
 
 });
 
+// This route to to list all logs.
 app.get('/api/users/:_id/logs', function(req, res) {
 
   console.log('your input ', req.query);
@@ -141,15 +156,7 @@ app.get('/api/users/:_id/logs', function(req, res) {
   });
 });
 
+// Start server and print port.
 const listener = app.listen(process.env.PORT, () => {
   console.log('Your app is listening on port ' + listener.address().port)
-
-  // UserModel.findById('60e03f86b341974b3086dd28').populate('exercises').exec(function(err, user) {
-  //   console.log('4')
-  //   console.log(user)
-  //   // return res.json(user);
-  // });
-
-  // Exercise.findOne({ title: Nintendo }).populate('_creator')
-
 })
