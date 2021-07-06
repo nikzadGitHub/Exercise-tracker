@@ -88,9 +88,7 @@ app.post('/api/users/:_id/exercises', function(req, res) {
     duration: duration,
     date: date,
   });
-
-  console.log('save version ', exerciseRecord);
-
+  
   exerciseRecord.save()
     .then((result) => {
       UserModel.findOne({ _id: req.params._id }, (err, user) => {
@@ -105,21 +103,17 @@ app.post('/api/users/:_id/exercises', function(req, res) {
                 UserModel.findOne({ _id: req.params._id })
                 .populate({
                   path: 'log',
-                  select: 'description duration date',
                })
                 .then((result) => {
-
-                  console.log('result ', result);
-
                   result = result.toObject();
                   let newObj = {
-                    _id: result._id,
-                    username:  result.username,
+                    date: new Date(result.log[0].date).toDateString(),
+                    duration: parseInt(result.log[0].duration),
                     description: result.log[0].description,
-                    duration: result.log[0].duration,
-                    date: result.log[0].date,
+                    username:  result.username,
+                    _id: result._id,
                   }
-                  console.log('newObj ', newObj);
+                  s
                   res.json(newObj);
                 })
                 .catch((error) => {
@@ -136,7 +130,7 @@ app.post('/api/users/:_id/exercises', function(req, res) {
 // This route to to list all logs.
 app.get('/api/users/:_id/logs', function(req, res) {
 
-  console.log('your input ', req.query);
+  // console.log('your input ', req.query);
   let dateFilter = {};
   let options = {};
 
@@ -148,10 +142,6 @@ app.get('/api/users/:_id/logs', function(req, res) {
     // console.log('date is not null');
     dateFilter = {'date': { $gt: req.query.from, $lt: req.query.to}};
   }
-
-  console.log('dateFilter', dateFilter);
-
-  console.log('options is now ', options);
 
   UserModel.findOne({ _id: req.params._id })
   .populate({
