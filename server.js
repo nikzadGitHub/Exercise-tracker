@@ -113,21 +113,43 @@ app.post('/api/users/:_id/exercises', function(req, res) {
 
 app.get('/api/users/:_id/logs', function(req, res) {
 
-  console.log('your input ', req.params._id);
+  console.log('your input ', req.query);
+  let lim = 0;
+  let dateFilter = {};
+
+  console.log('limit value ', req.query.limit);
+
+  if (req.query.limit != 'undefined') {
+    // console.log('limit is not null');
+    lim = req.query.limit;
+  }
+
+  if (req.query.from != 'undefined') {
+    // console.log('date is not null');
+    dateFilter = {'date': { $gt: req.query.from, $lt: req.query.to}};
+  }
+
+  // console.log('limit', lim);
+  // console.log('dateFilter', dateFilter);
 
   UserModel.findOne({ _id: req.params._id })
-  .populate('log')
+  .populate({
+    path: 'log',
+    match: dateFilter,
+    options: {
+      limit: lim,
+    }
+  })
   .then((result) => {
-    console.log('restult: ', result)
-    console.log('result.log: ', result.log)
-    console.log('result.log.length: ', result.log.length)
+
+    var result = result.toObject();
+    result.count = result.log.length;
 
     res.json(result);
   })
   .catch((error) => {
     res.status(500).json({ error });
   });
-  console.log('3')
 });
 
 const listener = app.listen(process.env.PORT, () => {
