@@ -120,10 +120,11 @@ app.get('/api/users/:_id/logs', function(req, res) {
   console.log('limit value ', req.query.limit);
 
   if (req.query.limit != 'undefined') {
-    // console.log('limit is not null');
+    
     lim = req.query.limit;
   }
 
+  console.log('limit is now ', lim);
   if (req.query.from != 'undefined') {
     // console.log('date is not null');
     dateFilter = {'date': { $gt: req.query.from, $lt: req.query.to}};
